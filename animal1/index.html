@@ -17,7 +17,7 @@
       <a-assets>
         <a-asset-item id="base" src="base1.glb"></a-asset-item>
         <a-asset-item id="fox" src="foxs.glb"></a-asset-item>
-        <a-asset-item id="horse" src="horse1.glb"></a-asset-item>
+        <a-asset-item id="wolf" src="wolf.glb"></a-asset-item>
         <a-asset-item id="pineTree" src="Geometric_Pine_Tree_1002014837_texture.glb"></a-asset-item>
       </a-assets>
 
@@ -41,9 +41,9 @@
         animation-mixer>
       </a-entity>
 
-      <!-- 🐴 Horse -->
+      <!-- 🐺 Wolf -->
       <a-entity
-        gltf-model="#horse"
+        gltf-model="#wolf"
         position="5.7 -0.15 -5.4"
         rotation="0 -90 0"
         scale="0.5 0.5 0.5"
@@ -80,14 +80,4 @@
 
         // 高さ制限チェック
         cam.sceneEl.addEventListener('loaded', () => {
-          cam.sceneEl.addEventListener('tick', () => {
-            const pos = cam.object3D.position;
-            if (pos.y < minY) {
-              pos.y = minY;
-            }
-          });
-        });
-      </script>
-    </a-scene>
-  </body>
-</html>
+          cam.sceneEl.add
