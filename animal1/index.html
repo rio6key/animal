@@ -13,6 +13,7 @@
       <a-assets>
         <a-asset-item id="base" src="base1.glb"></a-asset-item>
         <a-asset-item id="fox" src="foxs.glb"></a-asset-item>
+        <a-asset-item id="hours" src="horse.glb"></a-asset-item>
         <a-asset-item id="pineTree" src="Geometric_Pine_Tree_1002014837_texture.glb"></a-asset-item>
       </a-assets>
 
@@ -31,6 +32,15 @@
       <a-entity 
         gltf-model="#fox" 
         position="5 -0.15 -7.3" 
+        rotation="0 180 0"    
+        scale="0.01 0.01 0.01"
+        animation-mixer>
+      </a-entity>
+
+           <!-- 🫏 hours (アニメーション有効化) -->
+      <a-entity 
+        gltf-model="#hours" 
+        position="5 -0.15 -8.3" 
         rotation="0 180 0"    
         scale="0.01 0.01 0.01"
         animation-mixer>
