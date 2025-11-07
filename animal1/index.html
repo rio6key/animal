@@ -2,50 +2,68 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>Sample1 Bright Scene</title>
-
-    <!-- A-Frame 本体 -->
+    <title>VR Forest Scene</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <!-- animation-mixer 用の aframe-extras -->
+    <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   </head>
-
   <body>
     <a-scene>
-      <!-- 🎒 アセット -->
+      <!-- アセット -->
       <a-assets>
-        <a-asset-item id="sample1" src="sample1.glb"></a-asset-item>
+        <a-asset-item id="base" src="base.glb"></a-asset-item>
+        <a-asset-item id="fox" src="foxs.glb"></a-asset-item>
+        <a-asset-item id="pineTree" src="Geometric_Pine_Tree_1002014837_texture.glb"></a-asset-item>
       </a-assets>
 
-      <!-- 🦊 sample1.glb モデル -->
-      <a-entity
-        gltf-model="#sample1"
-        position="0 0 0"
-        rotation="0 0 0"
-        scale="1 1 1">
-      </a-entity>
-
-      <!-- 💡 明るい照明 -->
-      <!-- 太陽光 -->
-      <a-entity 
-        light="type: directional; intensity: 2.0; castShadow: true; color: #ffffff" 
-        position="5 10 5">
-      </a-entity>
-
-      <!-- 環境光（全体を明るく） -->
-      <a-entity 
-        light="type: ambient; intensity: 1.2; color: #ffffff">
-      </a-entity>
-
-      <!-- 🌌 青空 -->
+      <!-- 🌌 空（青空っぽい色） -->
       <a-sky color="#b3e5ff"></a-sky>
 
-      <!-- 🎥 カメラ（固定視点） -->
+      <!-- VR空間のベース -->
       <a-entity 
-        camera 
-        position="0 1.6 3" 
-        look-controls>
+        gltf-model="#base" 
+        position="0 0 0" 
+        rotation="0 90 0" 
+        scale="10 10 10">
       </a-entity>
+
+      <!-- 🦊 Fox (アニメーション有効化) -->
+      <a-entity 
+        gltf-model="#fox" 
+        position="5 -0.15 -7.3" 
+        rotation="0 180 0"    
+        scale="0.01 0.01 0.01"
+        animation-mixer>
+      </a-entity>
+
+      <!-- 🌲 林の木 -->
+      <a-entity gltf-model="#pineTree" position="-1 0 -1" scale="0.2 0.8 0.2"></a-entity>
+      <a-entity gltf-model="#pineTree" position="2 0 -2" scale="0.25 1 0.25"></a-entity>
+
+      <!-- 💡 ライト -->
+      <a-entity light="type: directional; intensity: 1.5" position="10 20 10"></a-entity>
+      <a-entity light="type: ambient; intensity: 0.5"></a-entity>
+
+      <!-- 🎥 カメラ -->
+     <a-entity 
+  id="camera"
+  camera 
+  look-controls 
+  wasd-controls="acceleration: 10"  
+  position="5 -0.1 -7.5">
+</a-entity>
+<p style="color: black;">テスト表示</p>
+
+
+      <script>
+        // ページロード後にカメラの初期向きを調整
+        const cam = document.querySelector('#camera');
+        cam.addEventListener('loaded', () => {
+          cam.components['look-controls'].yawObject.rotation.y = THREE.MathUtils.degToRad(-180);
+          cam.components['look-controls'].pitchObject.rotation.x = 0;
+        });
+      </script>
+
     </a-scene>
   </body>
 </html>
-
-
