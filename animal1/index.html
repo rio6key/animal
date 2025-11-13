@@ -17,6 +17,7 @@
       <a-assets>
         <img id="startImage" src="sample.png" />
         <a-asset-item id="base" src="bease2.glb"></a-asset-item>
+        <audio id="natu" src="natu.mp3"></audio>
       </a-assets>
 
       <!-- 🌌 空 -->
@@ -30,24 +31,20 @@
         scale="10 10 10"
         animation-mixer
       ></a-entity>
-      <a-entity gltf-model="#zou" position="5.99 -0.2 -6.3"
-                rotation="0 -55 0" scale="0.1 0.1 0.1" animation-mixer></a-entity>
 
       <!-- 💡 ライト -->
       <a-entity light="type: directional; intensity: 1.5" position="10 20 10"></a-entity>
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
-      <!-- 🎥 カメラリグ（カメラ + コントローラー） -->
+      <!-- 🎥 カメラリグ -->
       <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
         <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
-
-        <!-- 🟡 VRコントローラー（右手・左手） -->
         <a-entity id="ctlR" laser-controls="hand: right"></a-entity>
         <a-entity id="ctlL" laser-controls="hand: left"></a-entity>
       </a-entity>
 
-      <!-- 🖼️ VR空間上のスタート画像（7秒後に消える） -->
-      <a-entity id="startImageEntity" position="5 0 -6.5">
+      <!-- 🖼️ スタート画像（7秒後にフェードアウト） -->
+      <a-entity id="startImageEntity" position="5 -0.5 -6.5">
         <a-image
           id="startImagePlane"
           src="#startImage"
@@ -58,10 +55,17 @@
           opacity="1"
         ></a-image>
       </a-entity>
+
+      <!-- 🎵 自然音（natu.mp3） -->
+      <a-entity
+        id="natuSound"
+        sound="src: #natu; autoplay: true; loop: false; volume: 1"
+      ></a-entity>
     </a-scene>
 
     <script>
       const imgPlane = document.getElementById("startImagePlane");
+      const natuSound = document.getElementById("natuSound");
 
       // 🌫️ フェードアウト関数
       function fadeOut(el) {
@@ -77,10 +81,15 @@
         }, 50);
       }
 
-      // ⏳ 7秒後にフェードアウト開始
+      // ⏳ 7秒後に画像フェードアウト
       setTimeout(() => {
         fadeOut(imgPlane);
       }, 7000);
+
+      // ⏳ 90秒後に自然音を停止
+      setTimeout(() => {
+        natuSound.components.sound.stopSound();
+      }, 90000);
     </script>
   </body>
 </html>
