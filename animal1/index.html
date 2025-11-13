@@ -45,7 +45,7 @@
       <!-- 🎵 自然音 -->
       <a-entity
         id="natuSound"
-        sound="src: #natu; autoplay: false; loop: false; volume: 1"
+        sound="src: #natu; autoplay: false; loop: true; volume: 1"
       ></a-entity>
     </a-scene>
 
@@ -53,18 +53,12 @@
       const natuSound = document.getElementById("natuSound");
       let natuPlayed = false;
 
-      // 🎧 クリック or コントローラー押下で音再生
+      // 🎧 クリック or コントローラー押下で音再生（ループ）
       window.addEventListener("click", () => {
         if (!natuPlayed) {
           natuPlayed = true;
           natuSound.components.sound.playSound();
-          console.log("🎵 natu.mp3 再生開始");
-
-          // ⏳ 90秒後に停止
-          setTimeout(() => {
-            natuSound.components.sound.stopSound();
-            console.log("⏹ natu.mp3 停止");
-          }, 90000);
+         
         }
       });
     </script>
