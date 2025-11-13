@@ -15,7 +15,6 @@
     <a-scene cursor="rayOrigin: mouse">
       <!-- 🎒 アセット -->
       <a-assets>
-        <img id="startImage" src="sample.png" />
         <a-asset-item id="base" src="bease2.glb"></a-asset-item>
         <audio id="natu" src="natu.mp3"></audio>
       </a-assets>
@@ -43,46 +42,18 @@
         <a-entity id="ctlL" laser-controls="hand: left"></a-entity>
       </a-entity>
 
-      <!-- 🖼️ スタート画像（7秒後にフェードアウト） -->
-      <a-entity id="startImageEntity" position="5 -0.5 -6.5">
-        <a-image
-          id="startImagePlane"
-          src="#startImage"
-          width="3"
-          height="2"
-          position="0 0 0"
-          rotation="0 180 0"
-          opacity="1"
-        ></a-image>
-      </a-entity>
-
       <!-- 🎵 自然音 -->
-      <a-entity id="natuSound" sound="src: #natu; autoplay: false; loop: false; volume: 1"></a-entity>
+      <a-entity
+        id="natuSound"
+        sound="src: #natu; autoplay: false; loop: false; volume: 1"
+      ></a-entity>
     </a-scene>
 
     <script>
-      const imgPlane = document.getElementById("startImagePlane");
       const natuSound = document.getElementById("natuSound");
       let natuPlayed = false;
 
-      // 🌫️ フェードアウト関数
-      function fadeOut(el) {
-        let opacity = 1.0;
-        const fade = setInterval(() => {
-          opacity -= 0.05;
-          if (opacity <= 0) {
-            el.setAttribute("visible", "false");
-            clearInterval(fade);
-          } else {
-            el.setAttribute("opacity", opacity);
-          }
-        }, 50);
-      }
-
-      // ⏳ 7秒後に画像フェードアウト
-      setTimeout(() => fadeOut(imgPlane), 7000);
-
-      // 👆 クリックまたはコントローラー押下で音を再生
+      // 🎧 クリック or コントローラー押下で音再生
       window.addEventListener("click", () => {
         if (!natuPlayed) {
           natuPlayed = true;
