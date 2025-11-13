@@ -49,11 +49,11 @@
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
       <!-- 🎥 カメラ -->
-      <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
+      <a-entity id="cameraRig" position="5 -1.2 -7.9" rotation="0 180 0">
         <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
       </a-entity>
 
-      <!-- 🖼️ スタート画像（7秒後に消える） -->
+      <!-- 🖼️ スタート画像（7秒後に消える・反転修正済み） -->
       <a-entity id="startImageEntity" position="5 0 -6.5">
         <a-image
           id="startImagePlane"
@@ -61,6 +61,7 @@
           width="3"
           height="2"
           position="0 1.0 0"
+          rotation="0 180 0"
           opacity="1"
         ></a-image>
       </a-entity>
