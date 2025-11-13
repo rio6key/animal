@@ -6,8 +6,6 @@
 
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-
-    <!-- animation-mixer -->
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   </head>
 
@@ -40,24 +38,14 @@
       <!-- 🎥 カメラリグ -->
       <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
         <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
-
-        <!-- 🔵 右手コントローラー（ゾウ） -->
+        <!-- VRコントローラー -->
         <a-entity id="ctlR" laser-controls="hand: right"></a-entity>
-
-        <!-- 🟢 左手コントローラー（ウマ） -->
         <a-entity id="ctlL" laser-controls="hand: left"></a-entity>
       </a-entity>
 
-      <!-- 🎵 自然音 -->
-      <a-entity
-        id="natuSound"
-        sound="src: #natu; autoplay: false; loop: true; volume: 1"
-      ></a-entity>
-
-      <!-- 🐘 ゾウの鳴き声 -->
+      <!-- 🎵 音源 -->
+      <a-entity id="natuSound" sound="src: #natu; autoplay: false; loop: true; volume: 1"></a-entity>
       <a-entity id="zouSound" sound="src: #zou; autoplay: false; loop: false; volume: 1"></a-entity>
-
-      <!-- 🐴 ウマの鳴き声 -->
       <a-entity id="umaSound" sound="src: #uma; autoplay: false; loop: false; volume: 1"></a-entity>
     </a-scene>
 
@@ -68,9 +56,8 @@
       const ctlR = document.getElementById("ctlR");
       const ctlL = document.getElementById("ctlL");
 
+      // 自然音のループ再生（マウスクリック）
       let natuPlayed = false;
-
-      // 🎧 初回クリックで自然音ループ再生
       window.addEventListener("click", () => {
         if (!natuPlayed) {
           natuPlayed = true;
@@ -79,18 +66,46 @@
         }
       });
 
-      // 🐘 右手コントローラーでゾウの鳴き声
+      // 音がロードされるまで待つ
+      zouSound.addEventListener("sound-loaded", () => {
+        console.log("🐘 zou.mp3 loaded");
+      });
+      umaSound.addEventListener("sound-loaded", () => {
+        console.log("🐴 uma.mp3 loaded");
+      });
+
+      // VRコントローラーのトリガーで鳴き声再生
       ctlR.addEventListener("triggerdown", () => {
-        zouSound.components.sound.stopSound();
+        if (zouSound.components.sound.isPlaying) {
+          zouSound.components.sound.stopSound();
+        }
         zouSound.components.sound.playSound();
         console.log("🐘 zou.mp3 再生");
       });
 
-      // 🐴 左手コントローラーでウマの鳴き声
       ctlL.addEventListener("triggerdown", () => {
-        umaSound.components.sound.stopSound();
+        if (umaSound.components.sound.isPlaying) {
+          umaSound.components.sound.stopSound();
+        }
         umaSound.components.sound.playSound();
         console.log("🐴 uma.mp3 再生");
+      });
+
+      // マウスクリックでも動物の鳴き声を再生（テスト用）
+      window.addEventListener("dblclick", () => {
+        if (zouSound.components.sound.isPlaying) {
+          zouSound.components.sound.stopSound();
+        }
+        zouSound.components.sound.playSound();
+        console.log("🐘 zou.mp3 再生（マウス）");
+      });
+      window.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        if (umaSound.components.sound.isPlaying) {
+          umaSound.components.sound.stopSound();
+        }
+        umaSound.components.sound.playSound();
+        console.log("🐴 uma.mp3 再生（マウス右クリック）");
       });
     </script>
   </body>
