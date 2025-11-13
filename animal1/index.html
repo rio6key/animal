@@ -2,11 +2,13 @@
 <html>
   <head>
     <meta charset="UTF-8" />
-    <title>VR Forest Scene 🌲🌙</title>
+    <title>VR Forest Scene</title>
 
     <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
+    <!-- パーティクルシステム（雨用） -->
+    <script src="https://cdn.jsdelivr.net/gh/IdeaSpaceVR/aframe-particle-system-component/dist/aframe-particle-system-component.min.js"></script>
   </head>
 
   <body>
@@ -19,15 +21,8 @@
         <audio id="uma" src="uma.mp3"></audio>
       </a-assets>
 
-      <!-- 🌌 空（昼用） -->
+      <!-- 🌌 空 -->
       <a-sky id="sky" color="#b3e5ff"></a-sky>
-
-      <!-- 🌟 星空（夜用・空より外側に配置） -->
-      <a-entity
-        id="stars"
-        geometry="primitive: sphere; radius: 501"
-        material="shader: flat; src: https://cdn.aframe.io/starry-sky/sky.jpg; side: back; opacity: 0"
-      ></a-entity>
 
       <!-- 🏞️ ベース -->
       <a-entity
@@ -41,6 +36,14 @@
       <!-- 💡 ライト -->
       <a-entity id="dirLight" light="type: directional; intensity: 1.5" position="10 20 10"></a-entity>
       <a-entity id="ambLight" light="type: ambient; intensity: 0.5"></a-entity>
+
+      <!-- 🌧️ 雨（最初は非表示） -->
+      <a-entity
+        id="rain"
+        position="0 10 0"
+        visible="false"
+        particle-system="preset: rain; color: #88ccff; particleCount: 5000; size: 0.05; velocityValue: 0 -5 0"
+      ></a-entity>
 
       <!-- 🎥 カメラリグ -->
       <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
@@ -65,9 +68,9 @@
       const sky = document.getElementById("sky");
       const dirLight = document.getElementById("dirLight");
       const ambLight = document.getElementById("ambLight");
-      const stars = document.getElementById("stars");
+      const rain = document.getElementById("rain");
 
-      // 🌿 自然音ループ再生
+      // 🌿 自然音ループ再生（初回クリックで開始）
       let natuPlayed = false;
       window.addEventListener("click", () => {
         if (!natuPlayed) {
@@ -92,11 +95,12 @@
         playZouNext = !playZouNext;
       });
 
-      // 🌙 右手トリガーで昼夜切替（アニメーション＋星出現）
+      // 🌙 右手トリガーで夜モード切替（アニメーション＋雨）
       let isNight = false;
       ctlR.addEventListener("triggerdown", () => {
         if (!isNight) {
           // 昼 → 夜
+          sky.removeAttribute("animation__toNight");
           sky.setAttribute("animation__toNight", {
             property: "color",
             from: "#b3e5ff",
@@ -116,16 +120,14 @@
             to: 0.2,
             dur: 2000
           });
-          stars.setAttribute("animation__starsIn", {
-            property: "material.opacity",
-            from: 0,
-            to: 1,
-            dur: 2000,
-            easing: "easeInOutSine"
-          });
-          console.log("🌙 夜になりました（星が出る）");
+
+          // 🌧️ 雨を表示
+          rain.setAttribute("visible", "true");
+
+          console.log("🌙 夜に変更 + 雨開始");
         } else {
           // 夜 → 昼
+          sky.removeAttribute("animation__toDay");
           sky.setAttribute("animation__toDay", {
             property: "color",
             from: "#001a33",
@@ -145,14 +147,11 @@
             to: 0.5,
             dur: 2000
           });
-          stars.setAttribute("animation__starsOut", {
-            property: "material.opacity",
-            from: 1,
-            to: 0,
-            dur: 2000,
-            easing: "easeInOutSine"
-          });
-          console.log("☀️ 昼になりました（星が消える）");
+
+          // 🌤️ 雨を止める
+          rain.setAttribute("visible", "false");
+
+          console.log("☀️ 昼に戻す + 雨停止");
         }
         isNight = !isNight;
       });
