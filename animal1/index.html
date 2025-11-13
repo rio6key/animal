@@ -17,6 +17,8 @@
       <a-assets>
         <a-asset-item id="base" src="bease2.glb"></a-asset-item>
         <audio id="natu" src="natu.mp3"></audio>
+        <audio id="zou" src="zou.mp3"></audio>
+        <audio id="uma" src="uma.mp3"></audio>
       </a-assets>
 
       <!-- 🌌 空 -->
@@ -38,7 +40,11 @@
       <!-- 🎥 カメラリグ -->
       <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
         <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
+
+        <!-- 🔵 右手コントローラー（ゾウ） -->
         <a-entity id="ctlR" laser-controls="hand: right"></a-entity>
+
+        <!-- 🟢 左手コントローラー（ウマ） -->
         <a-entity id="ctlL" laser-controls="hand: left"></a-entity>
       </a-entity>
 
@@ -47,19 +53,44 @@
         id="natuSound"
         sound="src: #natu; autoplay: false; loop: true; volume: 1"
       ></a-entity>
+
+      <!-- 🐘 ゾウの鳴き声 -->
+      <a-entity id="zouSound" sound="src: #zou; autoplay: false; loop: false; volume: 1"></a-entity>
+
+      <!-- 🐴 ウマの鳴き声 -->
+      <a-entity id="umaSound" sound="src: #uma; autoplay: false; loop: false; volume: 1"></a-entity>
     </a-scene>
 
     <script>
       const natuSound = document.getElementById("natuSound");
+      const zouSound = document.getElementById("zouSound");
+      const umaSound = document.getElementById("umaSound");
+      const ctlR = document.getElementById("ctlR");
+      const ctlL = document.getElementById("ctlL");
+
       let natuPlayed = false;
 
-      // 🎧 クリック or コントローラー押下で音再生（ループ）
+      // 🎧 初回クリックで自然音ループ再生
       window.addEventListener("click", () => {
         if (!natuPlayed) {
           natuPlayed = true;
           natuSound.components.sound.playSound();
-         
+          console.log("🎵 natu.mp3 ループ再生開始");
         }
+      });
+
+      // 🐘 右手コントローラーでゾウの鳴き声
+      ctlR.addEventListener("triggerdown", () => {
+        zouSound.components.sound.stopSound();
+        zouSound.components.sound.playSound();
+        console.log("🐘 zou.mp3 再生");
+      });
+
+      // 🐴 左手コントローラーでウマの鳴き声
+      ctlL.addEventListener("triggerdown", () => {
+        umaSound.components.sound.stopSound();
+        umaSound.components.sound.playSound();
+        console.log("🐴 uma.mp3 再生");
       });
     </script>
   </body>
