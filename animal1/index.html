@@ -59,7 +59,7 @@
       const dirLight = document.getElementById("dirLight");
       const ambLight = document.getElementById("ambLight");
 
-      // 🎵 自然音のループ再生
+      // 🌿 自然音ループ再生（初回クリックで開始）
       let natuPlayed = false;
       window.addEventListener("click", () => {
         if (!natuPlayed) {
@@ -69,103 +69,72 @@
         }
       });
 
-      // ===========================
-      // 🌙 夜モード切り替え（右コントローラー）
-      // ===========================
-      let isNight = false;
-
-      // 色とライトを徐々に変える関数
-      function transitionScene(from, to, duration = 1500) {
-        const startTime = performance.now();
-
-        function animate(now) {
-          const t = Math.min((now - startTime) / duration, 1);
-
-          // 線形補間関数
-          const lerp = (a, b) => a + (b - a) * t;
-
-          // RGB補間
-          function hexToRgb(hex) {
-            const bigint = parseInt(hex.replace("#", ""), 16);
-            return {
-              r: (bigint >> 16) & 255,
-              g: (bigint >> 8) & 255,
-              b: bigint & 255,
-            };
-          }
-          function rgbToHex({ r, g, b }) {
-            return (
-              "#" +
-              [r, g, b]
-                .map((x) => Math.round(x).toString(16).padStart(2, "0"))
-                .join("")
-            );
-          }
-
-          const fromRGB = hexToRgb(from.color);
-          const toRGB = hexToRgb(to.color);
-          const mixedColor = {
-            r: lerp(fromRGB.r, toRGB.r),
-            g: lerp(fromRGB.g, toRGB.g),
-            b: lerp(fromRGB.b, toRGB.b),
-          };
-
-          sky.setAttribute("color", rgbToHex(mixedColor));
-          dirLight.setAttribute(
-            "light",
-            `type: directional; intensity: ${lerp(from.dir, to.dir)}`
-          );
-          ambLight.setAttribute(
-            "light",
-            `type: ambient; intensity: ${lerp(from.amb, to.amb)}`
-          );
-
-          if (t < 1) requestAnimationFrame(animate);
-        }
-
-        requestAnimationFrame(animate);
-      }
-
-      ctlR.addEventListener("triggerdown", () => {
-        if (!isNight) {
-          console.log("🌙 夜モードへ切り替え中…");
-          transitionScene(
-            { color: "#b3e5ff", dir: 1.5, amb: 0.5 },
-            { color: "#001a33", dir: 0.1, amb: 0.2 },
-            2000
-          );
-          isNight = true;
-        } else {
-          console.log("☀️ 昼モードへ切り替え中…");
-          transitionScene(
-            { color: "#001a33", dir: 0.1, amb: 0.2 },
-            { color: "#b3e5ff", dir: 1.5, amb: 0.5 },
-            2000
-          );
-          isNight = false;
-        }
-      });
-
-      // ===========================
-      // 🐘🐴 左コントローラー（交互に鳴らす）
-      // ===========================
+      // 🐘🐴 左手トリガーで交互に鳴く
       let playZouNext = true;
-
       ctlL.addEventListener("triggerdown", () => {
         if (playZouNext) {
-          if (zouSound.components.sound.isPlaying) {
-            zouSound.components.sound.stopSound();
-          }
+          umaSound.components.sound.stopSound();
           zouSound.components.sound.playSound();
-          console.log("🐘 ゾウの鳴き声 再生");
+          console.log("🐘 ゾウの鳴き声！");
         } else {
-          if (umaSound.components.sound.isPlaying) {
-            umaSound.components.sound.stopSound();
-          }
+          zouSound.components.sound.stopSound();
           umaSound.components.sound.playSound();
-          console.log("🐴 ウマの鳴き声 再生");
+          console.log("🐴 ウマの鳴き声！");
         }
-        playZouNext = !playZouNext; // 次を切り替え
+        playZouNext = !playZouNext;
+      });
+
+      // 🌙 右手トリガーで夜モード切替（アニメーション付き）
+      let isNight = false;
+      ctlR.addEventListener("triggerdown", () => {
+        if (!isNight) {
+          // 昼 → 夜
+          sky.removeAttribute("animation__toNight");
+          sky.setAttribute("animation__toNight", {
+            property: "color",
+            from: "#b3e5ff",
+            to: "#001a33",
+            dur: 2000,
+            easing: "easeInOutQuad"
+          });
+          dirLight.setAttribute("animation__dim", {
+            property: "light.intensity",
+            from: 1.5,
+            to: 0.1,
+            dur: 2000
+          });
+          ambLight.setAttribute("animation__dim2", {
+            property: "light.intensity",
+            from: 0.5,
+            to: 0.2,
+            dur: 2000
+          });
+          console.log("🌙 夜に変更");
+        } else {
+          // 夜 → 昼
+          sky.removeAttribute("animation__toDay");
+          sky.setAttribute("animation__toDay", {
+            property: "color",
+            from: "#001a33",
+            to: "#b3e5ff",
+            dur: 2000,
+            easing: "easeInOutQuad"
+          });
+          dirLight.setAttribute("animation__bright", {
+            property: "light.intensity",
+            from: 0.1,
+            to: 1.5,
+            dur: 2000
+          });
+          ambLight.setAttribute("animation__bright2", {
+            property: "light.intensity",
+            from: 0.2,
+            to: 0.5,
+            dur: 2000
+          });
+          console.log("☀️ 昼に戻す");
+        }
+        isNight = !isNight;
       });
     </script>
   </body>
