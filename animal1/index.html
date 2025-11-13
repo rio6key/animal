@@ -56,16 +56,14 @@
         ></a-image>
       </a-entity>
 
-      <!-- 🎵 自然音（natu.mp3） -->
-      <a-entity
-        id="natuSound"
-        sound="src: #natu; autoplay: true; loop: false; volume: 1"
-      ></a-entity>
+      <!-- 🎵 自然音 -->
+      <a-entity id="natuSound" sound="src: #natu; autoplay: false; loop: false; volume: 1"></a-entity>
     </a-scene>
 
     <script>
       const imgPlane = document.getElementById("startImagePlane");
       const natuSound = document.getElementById("natuSound");
+      let natuPlayed = false;
 
       // 🌫️ フェードアウト関数
       function fadeOut(el) {
@@ -82,14 +80,22 @@
       }
 
       // ⏳ 7秒後に画像フェードアウト
-      setTimeout(() => {
-        fadeOut(imgPlane);
-      }, 7000);
+      setTimeout(() => fadeOut(imgPlane), 7000);
 
-      // ⏳ 90秒後に自然音を停止
-      setTimeout(() => {
-        natuSound.components.sound.stopSound();
-      }, 90000);
+      // 👆 クリックまたはコントローラー押下で音を再生
+      window.addEventListener("click", () => {
+        if (!natuPlayed) {
+          natuPlayed = true;
+          natuSound.components.sound.playSound();
+          console.log("🎵 natu.mp3 再生開始");
+
+          // ⏳ 90秒後に停止
+          setTimeout(() => {
+            natuSound.components.sound.stopSound();
+            console.log("⏹ natu.mp3 停止");
+          }, 90000);
+        }
+      });
     </script>
   </body>
 </html>
