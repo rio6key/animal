@@ -3,14 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <title>VR Forest Scene</title>
+
+    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   </head>
+
   <body>
-    <a-scene>
+    <a-scene cursor="rayOrigin: mouse">
       <!-- 🎒 アセット -->
       <a-assets>
         <a-asset-item id="base" src="bease2.glb"></a-asset-item>
+        <audio id="natu" src="natu.mp3"></audio>
         <audio id="zou" src="zou.mp3"></audio>
         <audio id="uma" src="uma.mp3"></audio>
       </a-assets>
@@ -28,53 +32,80 @@
       ></a-entity>
 
       <!-- 💡 ライト -->
-      <a-entity id="dirLight" light="type: directional; intensity: 1.5" position="10 20 10"></a-entity>
+      <a-entity light="type: directional; intensity: 1.5" position="10 20 10"></a-entity>
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
       <!-- 🎥 カメラリグ -->
       <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
-        <a-camera id="camera" look-controls wasd-controls="acceleration:10"></a-camera>
+        <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
+        <!-- VRコントローラー -->
         <a-entity id="ctlR" laser-controls="hand: right"></a-entity>
         <a-entity id="ctlL" laser-controls="hand: left"></a-entity>
       </a-entity>
 
       <!-- 🎵 音源 -->
+      <a-entity id="natuSound" sound="src: #natu; autoplay: false; loop: true; volume: 1"></a-entity>
       <a-entity id="zouSound" sound="src: #zou; autoplay: false; loop: false; volume: 1"></a-entity>
       <a-entity id="umaSound" sound="src: #uma; autoplay: false; loop: false; volume: 1"></a-entity>
     </a-scene>
 
     <script>
-      const ctlR = document.getElementById("ctlR");
-      const ctlL = document.getElementById("ctlL");
-      const dirLight = document.getElementById("dirLight");
+      const natuSound = document.getElementById("natuSound");
       const zouSound = document.getElementById("zouSound");
       const umaSound = document.getElementById("umaSound");
+      const ctlR = document.getElementById("ctlR");
+      const ctlL = document.getElementById("ctlL");
 
-      // 右手トリガー：ゾウ鳴き声＋ライト暗く（空に向けて押す）
-      ctlR.addEventListener("triggerdown", () => {
-        const pos = new THREE.Vector3();
-        ctlR.object3D.getWorldPosition(pos);
-
-        if (pos.y > 1.5) { // 上方向（空向き）に押した場合
-          if (zouSound.components.sound.isPlaying) zouSound.components.sound.stopSound();
-          zouSound.components.sound.playSound();
-          console.log("🐘 ゾウ鳴き声再生");
-
-          dirLight.setAttribute("light", "intensity", 0.5);
-          console.log("🌙 ライト暗く");
+      // 自然音のループ再生（マウスクリック）
+      let natuPlayed = false;
+      window.addEventListener("click", () => {
+        if (!natuPlayed) {
+          natuPlayed = true;
+          natuSound.components.sound.playSound();
+          console.log("🎵 natu.mp3 ループ再生開始");
         }
       });
 
-      // 左手トリガー：ウマ鳴き声のみ（空向き）
-      ctlL.addEventListener("triggerdown", () => {
-        const pos = new THREE.Vector3();
-        ctlL.object3D.getWorldPosition(pos);
+      // 音がロードされるまで待つ
+      zouSound.addEventListener("sound-loaded", () => {
+        console.log("🐘 zou.mp3 loaded");
+      });
+      umaSound.addEventListener("sound-loaded", () => {
+        console.log("🐴 uma.mp3 loaded");
+      });
 
-        if (pos.y > 1.5) {
-          if (umaSound.components.sound.isPlaying) umaSound.components.sound.stopSound();
-          umaSound.components.sound.playSound();
-          console.log("🐴 ウマ鳴き声再生");
+      // VRコントローラーのトリガーで鳴き声再生
+      ctlR.addEventListener("triggerdown", () => {
+        if (zouSound.components.sound.isPlaying) {
+          zouSound.components.sound.stopSound();
         }
+        zouSound.components.sound.playSound();
+        console.log("🐘 zou.mp3 再生");
+      });
+
+      ctlL.addEventListener("triggerdown", () => {
+        if (umaSound.components.sound.isPlaying) {
+          umaSound.components.sound.stopSound();
+        }
+        umaSound.components.sound.playSound();
+        console.log("🐴 uma.mp3 再生");
+      });
+
+      // マウスクリックでも動物の鳴き声を再生（テスト用）
+      window.addEventListener("dblclick", () => {
+        if (zouSound.components.sound.isPlaying) {
+          zouSound.components.sound.stopSound();
+        }
+        zouSound.components.sound.playSound();
+        console.log("🐘 zou.mp3 再生（マウス）");
+      });
+      window.addEventListener("contextmenu", (e) => {
+        e.preventDefault();
+        if (umaSound.components.sound.isPlaying) {
+          umaSound.components.sound.stopSound();
+        }
+        umaSound.components.sound.playSound();
+        console.log("🐴 uma.mp3 再生（マウス右クリック）");
       });
     </script>
   </body>
