@@ -44,51 +44,33 @@
     </a-scene>
 
     <script>
-      const camera = document.getElementById("camera");
-      const dirLight = document.getElementById("dirLight");
       const ctlR = document.getElementById("ctlR");
       const ctlL = document.getElementById("ctlL");
+      const dirLight = document.getElementById("dirLight");
       const zouSound = document.getElementById("zouSound");
       const umaSound = document.getElementById("umaSound");
 
-      // 右手トリガー：ゾウ＋ライト暗く
+      // 右手トリガー：ゾウ鳴き声＋ライト暗く（空に向けて押す）
       ctlR.addEventListener("triggerdown", () => {
-        // カメラ前方ベクトルを取得
-        const camDir = new THREE.Vector3();
-        camera.object3D.getWorldDirection(camDir);
-        camDir.y = 0; // 水平面で判定
+        const pos = new THREE.Vector3();
+        ctlR.object3D.getWorldPosition(pos);
 
-        // コントローラー方向ベクトルを取得
-        const ctrlDir = new THREE.Vector3();
-        ctlR.object3D.getWorldDirection(ctrlDir);
-        ctrlDir.y = 0;
-
-        // ドット積で前方に向いているか判定
-        const dot = camDir.dot(ctrlDir);
-        if (dot > 0.8) { // 前方を向いている場合のみ
-          // ゾウ鳴き声再生
+        if (pos.y > 1.5) { // 上方向（空向き）に押した場合
           if (zouSound.components.sound.isPlaying) zouSound.components.sound.stopSound();
           zouSound.components.sound.playSound();
           console.log("🐘 ゾウ鳴き声再生");
 
-          // ライト少し暗く（夜のように）
           dirLight.setAttribute("light", "intensity", 0.5);
           console.log("🌙 ライト暗く");
         }
       });
 
-      // 左手トリガー：ウマ鳴き声のみ
+      // 左手トリガー：ウマ鳴き声のみ（空向き）
       ctlL.addEventListener("triggerdown", () => {
-        const camDir = new THREE.Vector3();
-        camera.object3D.getWorldDirection(camDir);
-        camDir.y = 0;
+        const pos = new THREE.Vector3();
+        ctlL.object3D.getWorldPosition(pos);
 
-        const ctrlDir = new THREE.Vector3();
-        ctlL.object3D.getWorldDirection(ctrlDir);
-        ctrlDir.y = 0;
-
-        const dot = camDir.dot(ctrlDir);
-        if (dot > 0.8) {
+        if (pos.y > 1.5) {
           if (umaSound.components.sound.isPlaying) umaSound.components.sound.stopSound();
           umaSound.components.sound.playSound();
           console.log("🐴 ウマ鳴き声再生");
