@@ -3,18 +3,14 @@
   <head>
     <meta charset="UTF-8" />
     <title>VR Forest Scene</title>
-
-    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   </head>
-
   <body>
-    <a-scene cursor="rayOrigin: mouse">
+    <a-scene>
       <!-- 🎒 アセット -->
       <a-assets>
         <a-asset-item id="base" src="bease2.glb"></a-asset-item>
-        <audio id="natu" src="natu.mp3"></audio>
         <audio id="zou" src="zou.mp3"></audio>
         <audio id="uma" src="uma.mp3"></audio>
       </a-assets>
@@ -37,80 +33,66 @@
 
       <!-- 🎥 カメラリグ -->
       <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
-        <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
-        <!-- VRコントローラー -->
+        <a-camera id="camera" look-controls wasd-controls="acceleration:10"></a-camera>
         <a-entity id="ctlR" laser-controls="hand: right"></a-entity>
         <a-entity id="ctlL" laser-controls="hand: left"></a-entity>
       </a-entity>
 
       <!-- 🎵 音源 -->
-      <a-entity id="natuSound" sound="src: #natu; autoplay: false; loop: true; volume: 1"></a-entity>
       <a-entity id="zouSound" sound="src: #zou; autoplay: false; loop: false; volume: 1"></a-entity>
       <a-entity id="umaSound" sound="src: #uma; autoplay: false; loop: false; volume: 1"></a-entity>
-
-      <!-- 🌧️ 雨（最初は非表示） -->
-      <a-entity id="rain" particle-system="preset: rain; particleCount: 5000; color: #aaddff; size: 0.1" visible="false" position="0 10 0"></a-entity>
     </a-scene>
 
     <script>
-      const natuSound = document.getElementById("natuSound");
-      const zouSound = document.getElementById("zouSound");
-      const umaSound = document.getElementById("umaSound");
+      const camera = document.getElementById("camera");
+      const dirLight = document.getElementById("dirLight");
       const ctlR = document.getElementById("ctlR");
       const ctlL = document.getElementById("ctlL");
-      const directionalLight = document.getElementById("dirLight");
-      const rain = document.getElementById("rain");
+      const zouSound = document.getElementById("zouSound");
+      const umaSound = document.getElementById("umaSound");
 
-      let natuPlayed = false;
-      let clickCount = 0;
-
-      // 🎧 左クリックで自然音再生 & 雨・暗さ演出
-      window.addEventListener("click", () => {
-        clickCount++;
-
-        // 自然音初回再生
-        if (!natuPlayed) {
-          natuPlayed = true;
-          natuSound.components.sound.playSound();
-          console.log("🎵 natu.mp3 ループ再生開始");
-        }
-
-        // 2回目クリックで明るさを下げて雨を表示
-        if (clickCount === 2) {
-          directionalLight.setAttribute("light", "intensity", 0.5); // 明るさ半分
-          rain.setAttribute("visible", true); // 雨を表示
-          console.log("☔ 雨開始＆ライト暗く");
-        }
-      });
-
-      // 音がロードされるまで待つ
-      zouSound.addEventListener("sound-loaded", () => console.log("🐘 zou.mp3 loaded"));
-      umaSound.addEventListener("sound-loaded", () => console.log("🐴 uma.mp3 loaded"));
-
-      // VRコントローラーのトリガーで動物の鳴き声
+      // 右手トリガー：ゾウ＋ライト暗く
       ctlR.addEventListener("triggerdown", () => {
-        if (zouSound.components.sound.isPlaying) zouSound.components.sound.stopSound();
-        zouSound.components.sound.playSound();
-        console.log("🐘 zou.mp3 再生");
+        // カメラ前方ベクトルを取得
+        const camDir = new THREE.Vector3();
+        camera.object3D.getWorldDirection(camDir);
+        camDir.y = 0; // 水平面で判定
+
+        // コントローラー方向ベクトルを取得
+        const ctrlDir = new THREE.Vector3();
+        ctlR.object3D.getWorldDirection(ctrlDir);
+        ctrlDir.y = 0;
+
+        // ドット積で前方に向いているか判定
+        const dot = camDir.dot(ctrlDir);
+        if (dot > 0.8) { // 前方を向いている場合のみ
+          // ゾウ鳴き声再生
+          if (zouSound.components.sound.isPlaying) zouSound.components.sound.stopSound();
+          zouSound.components.sound.playSound();
+          console.log("🐘 ゾウ鳴き声再生");
+
+          // ライト少し暗く（夜のように）
+          dirLight.setAttribute("light", "intensity", 0.5);
+          console.log("🌙 ライト暗く");
+        }
       });
 
+      // 左手トリガー：ウマ鳴き声のみ
       ctlL.addEventListener("triggerdown", () => {
-        if (umaSound.components.sound.isPlaying) umaSound.components.sound.stopSound();
-        umaSound.components.sound.playSound();
-        console.log("🐴 uma.mp3 再生");
-      });
+        const camDir = new THREE.Vector3();
+        camera.object3D.getWorldDirection(camDir);
+        camDir.y = 0;
 
-      // マウスでも動物の鳴き声再生（テスト用）
-      window.addEventListener("dblclick", () => {
-        if (zouSound.components.sound.isPlaying) zouSound.components.sound.stopSound();
-        zouSound.components.sound.playSound();
-        console.log("🐘 zou.mp3 再生（マウス）");
-      });
-      window.addEventListener("contextmenu", (e) => {
-        e.preventDefault();
-        if (umaSound.components.sound.isPlaying) umaSound.components.sound.stopSound();
-        umaSound.components.sound.playSound();
-        console.log("🐴 uma.mp3 再生（マウス右クリック）");
+        const ctrlDir = new THREE.Vector3();
+        ctlL.object3D.getWorldDirection(ctrlDir);
+        ctrlDir.y = 0;
+
+        const dot = camDir.dot(ctrlDir);
+        if (dot > 0.8) {
+          if (umaSound.components.sound.isPlaying) umaSound.components.sound.stopSound();
+          umaSound.components.sound.playSound();
+          console.log("🐴 ウマ鳴き声再生");
+        }
       });
     </script>
   </body>
