@@ -3,67 +3,102 @@
   <head>
     <meta charset="UTF-8" />
     <title>VR Forest Scene</title>
+
+    <!-- A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
-    <!-- animation-mixer 用の aframe-extras -->
+
+    <!-- animation-mixer -->
     <script src="https://cdn.jsdelivr.net/gh/donmccurdy/aframe-extras@v6.1.1/dist/aframe-extras.min.js"></script>
   </head>
+
   <body>
-    <a-scene>
-      <!-- アセット -->
+    <!-- 🟢 マウスクリック用の cursor="rayOrigin: mouse" を追加 -->
+    <a-scene cursor="rayOrigin: mouse">
+      <!-- 🎒 アセット -->
       <a-assets>
-        <a-asset-item id="base" src="base.glb"></a-asset-item>
+        <img id="startImage" src="sample.png" />
+        <a-asset-item id="base" src="base2.glb"></a-asset-item>
         <a-asset-item id="fox" src="foxs.glb"></a-asset-item>
+        <a-asset-item id="horse" src="horse.glb"></a-asset-item>
+        <a-asset-item id="zou" src="zou.glb"></a-asset-item>
+        <a-asset-item id="Tree1" src="Tree1.glb"></a-asset-item>
+        <a-asset-item id="Tree2" src="Tree2.glb"></a-asset-item>
         <a-asset-item id="pineTree" src="Geometric_Pine_Tree_1002014837_texture.glb"></a-asset-item>
       </a-assets>
 
-      <!-- 🌌 空（青空っぽい色） -->
+      <!-- 🌌 空 -->
       <a-sky color="#b3e5ff"></a-sky>
 
-      <!-- VR空間のベース -->
-      <a-entity 
-        gltf-model="#base" 
-        position="0 0 0" 
-        rotation="0 90 0" 
-        scale="10 10 10">
-      </a-entity>
+      <!-- 🏞️ ベース -->
+      <a-entity gltf-model="#base" position="0 0 0" rotation="0 90 0" scale="10 10 10"></a-entity>
 
-      <!-- 🦊 Fox (アニメーション有効化) -->
-      <a-entity 
-        gltf-model="#fox" 
-        position="5 -0.15 -7.3" 
-        rotation="0 180 0"    
-        scale="0.01 0.01 0.01"
-        animation-mixer>
-      </a-entity>
 
-      <!-- 🌲 林の木 -->
-      <a-entity gltf-model="#pineTree" position="-1 0 -1" scale="0.2 0.8 0.2"></a-entity>
-      <a-entity gltf-model="#pineTree" position="2 0 -2" scale="0.25 1 0.25"></a-entity>
+      <!-- 🦊 Fox -->
+      <a-entity gltf-model="#fox" position="5 -0.15 -7.3" rotation="0 180 0" scale="0.04 0.04 0.04" animation-mixer></a-entity>
+
+      <!-- 🐴 親馬 -->
+      <a-entity gltf-model="#horse" position="5.4 0 -8" rotation="0 25 0"
+                scale="0.09 0.09 0.09" animation-mixer
+                animation="property: position; to: 7.1 0 -5; dur: 24000; easing: linear; loop: false"></a-entity>
+
+      <!-- 🐎 仔馬 -->
+      <a-entity gltf-model="#horse" position="5.6 0 -8" rotation="0 25 0"
+                scale="0.05 0.05 0.05" animation-mixer
+                animation="property: position; to: 7.3 0 -5; dur: 24000; easing: linear; loop: false"></a-entity>
+
+      <!-- 🐘 親子ゾウ -->
+      <a-entity gltf-model="#zou" position="5.99 -0.2 -6.3"
+                rotation="0 -55 0" scale="0.1 0.1 0.1" animation-mixer></a-entity>
+      <a-entity gltf-model="#zou" position="5.99 -0.1 -6.7"
+                rotation="0 -55 0" scale="0.05 0.05 0.05" animation-mixer></a-entity>
 
       <!-- 💡 ライト -->
       <a-entity light="type: directional; intensity: 1.5" position="10 20 10"></a-entity>
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
       <!-- 🎥 カメラ -->
-     <a-entity 
-  id="camera"
-  camera 
-  look-controls 
-  wasd-controls="acceleration: 10"  
-  position="5 -0.1 -7.5">
-</a-entity>
-<p style="color: black;">テスト表示</p>
+      <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
+        <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
+      </a-entity>
 
+      <!-- 🖼️ VR空間上のスタート画像（クリックで消える） -->
+      <a-entity id="startImageEntity" position="5 0 -6.5">
+        <a-image id="startImagePlane"
+                 src="#startImage"
+                 width="3"
+                 height="2"
+                 position="0 1.5 0"
+                 opacity="1"
+                 class="clickable">
+        </a-image>
+      </a-entity>
 
-      <script>
-        // ページロード後にカメラの初期向きを調整
-        const cam = document.querySelector('#camera');
-        cam.addEventListener('loaded', () => {
-          cam.components['look-controls'].yawObject.rotation.y = THREE.MathUtils.degToRad(-180);
-          cam.components['look-controls'].pitchObject.rotation.x = 0;
-        });
-      </script>
+      <!-- 🟡 VRコントローラー（右手・左手） -->
+      <a-entity id="ctlR" laser-controls="hand: right" raycaster="objects: .clickable; lineColor: red;"></a-entity>
+      <a-entity id="ctlL" laser-controls="hand: left" raycaster="objects: .clickable; lineColor: blue;"></a-entity>
 
     </a-scene>
+
+    <script>
+      const imgPlane = document.getElementById('startImagePlane');
+
+      // 🖱️ マウスクリックまたはVRポインターでフェードアウト
+      imgPlane.addEventListener('click', () => fadeOut(imgPlane));
+
+      // フェードアウト関数
+      function fadeOut(el) {
+        if (el.getAttribute('visible') === 'false') return;
+        let opacity = 1.0;
+        const fade = setInterval(() => {
+          opacity -= 0.05;
+          if (opacity <= 0) {
+            el.setAttribute('visible', 'false');
+            clearInterval(fade);
+          } else {
+            el.setAttribute('opacity', opacity);
+          }
+        }, 50);
+      }
+    </script>
   </body>
 </html>
