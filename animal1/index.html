@@ -53,14 +53,14 @@
         <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
       </a-entity>
 
-      <!-- 🖼️ スタート画像（3秒後に消える） -->
+      <!-- 🖼️ スタート画像（7秒後に消える） -->
       <a-entity id="startImageEntity" position="5 0 -6.5">
         <a-image
           id="startImagePlane"
           src="#startImage"
           width="3"
           height="2"
-          position="0 1.5 0"
+          position="0 1.0 0"
           opacity="1"
         ></a-image>
       </a-entity>
@@ -83,10 +83,10 @@
         }, 50);
       }
 
-      // ⏳ 3秒後にフェードアウト開始
+      // ⏳ 7秒後にフェードアウト開始
       setTimeout(() => {
         fadeOut(imgPlane);
-      }, 3000);
+      }, 7000);
     </script>
   </body>
 </html>
