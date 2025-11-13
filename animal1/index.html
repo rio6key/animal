@@ -19,13 +19,13 @@
         <audio id="uma" src="uma.mp3"></audio>
       </a-assets>
 
-      <!-- 🌌 空 -->
+      <!-- 🌌 空（昼用） -->
       <a-sky id="sky" color="#b3e5ff"></a-sky>
 
-      <!-- 🌟 星（夜専用） -->
+      <!-- 🌟 星空（夜用・空より外側に配置） -->
       <a-entity
         id="stars"
-        geometry="primitive: sphere; radius: 100"
+        geometry="primitive: sphere; radius: 501"
         material="shader: flat; src: https://cdn.aframe.io/starry-sky/sky.jpg; side: back; opacity: 0"
       ></a-entity>
 
@@ -92,12 +92,11 @@
         playZouNext = !playZouNext;
       });
 
-      // 🌙 右手トリガーで昼夜切替（アニメーション付き＋星出現）
+      // 🌙 右手トリガーで昼夜切替（アニメーション＋星出現）
       let isNight = false;
       ctlR.addEventListener("triggerdown", () => {
         if (!isNight) {
           // 昼 → 夜
-          sky.removeAttribute("animation__toNight");
           sky.setAttribute("animation__toNight", {
             property: "color",
             from: "#b3e5ff",
@@ -127,7 +126,6 @@
           console.log("🌙 夜になりました（星が出る）");
         } else {
           // 夜 → 昼
-          sky.removeAttribute("animation__toDay");
           sky.setAttribute("animation__toDay", {
             property: "color",
             from: "#001a33",
