@@ -49,7 +49,7 @@
       <a-entity id="umaSound" sound="src: #uma; autoplay: false; loop: false; volume: 1"></a-entity>
 
       <!-- 🌧️ 雨（最初は非表示） -->
-      <a-entity id="rain" particle-system="preset: rain; particleCount: 5000; color: #aaddff; size: 0.1" visible="false"></a-entity>
+      <a-entity id="rain" particle-system="preset: rain; particleCount: 5000; color: #aaddff; size: 0.1" visible="false" position="0 10 0"></a-entity>
     </a-scene>
 
     <script>
@@ -64,11 +64,11 @@
       let natuPlayed = false;
       let clickCount = 0;
 
-      // 🎧 クリックで自然音再生 & 天候変化
+      // 🎧 左クリックで自然音再生 & 雨・暗さ演出
       window.addEventListener("click", () => {
         clickCount++;
 
-        // 自然音ループ再生（初回クリック）
+        // 自然音初回再生
         if (!natuPlayed) {
           natuPlayed = true;
           natuSound.components.sound.playSound();
@@ -78,8 +78,8 @@
         // 2回目クリックで明るさを下げて雨を表示
         if (clickCount === 2) {
           directionalLight.setAttribute("light", "intensity", 0.5); // 明るさ半分
-          rain.setAttribute("visible", "true"); // 雨を表示
-          console.log("☔ 雨開始＆明るさ半分");
+          rain.setAttribute("visible", true); // 雨を表示
+          console.log("☔ 雨開始＆ライト暗く");
         }
       });
 
