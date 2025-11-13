@@ -12,7 +12,6 @@
   </head>
 
   <body>
-    <!-- 🟢 マウスクリック用の cursor="rayOrigin: mouse" を追加 -->
     <a-scene cursor="rayOrigin: mouse">
       <!-- 🎒 アセット -->
       <a-assets>
@@ -39,9 +38,21 @@
       ></a-entity>
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
-      <!-- 🎥 カメラ -->
+      <!-- 🎥 カメラリグ（カメラ + コントローラー） -->
       <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
         <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
+
+        <!-- 🟡 VRコントローラー（右手・左手） -->
+        <a-entity
+          id="ctlR"
+          laser-controls="hand: right"
+          raycaster="objects: .clickable"
+        ></a-entity>
+        <a-entity
+          id="ctlL"
+          laser-controls="hand: left"
+          raycaster="objects: .clickable"
+        ></a-entity>
       </a-entity>
 
       <!-- 🖼️ VR空間上のスタート画像（クリックで消える） -->
@@ -56,25 +67,22 @@
           class="clickable"
         ></a-image>
       </a-entity>
-
-      <!-- 🟡 VRコントローラー（右手・左手） -->
-      <a-entity
-        id="ctlR"
-        laser-controls="hand: right"
-        raycaster="objects: .clickable; lineColor: red;"
-      ></a-entity>
-      <a-entity
-        id="ctlL"
-        laser-controls="hand: left"
-        raycaster="objects: .clickable; lineColor: blue;"
-      ></a-entity>
     </a-scene>
 
     <script>
       const imgPlane = document.getElementById('startImagePlane');
 
-      // 🖱️ マウスクリックまたはVRポインターでフェードアウト
+      // 🖱️ マウスクリックでもVRコントローラーでもフェードアウト
       imgPlane.addEventListener('click', () => fadeOut(imgPlane));
+
+      // VRコントローラーのトリガー検出（右手・左手両方対応）
+      const controllers = document.querySelectorAll('#ctlR, #ctlL');
+      controllers.forEach((ctl) => {
+        ctl.addEventListener('triggerdown', (e) => {
+          const intersected = ctl.components.raycaster.intersectedEls;
+          if (intersected.includes(imgPlane)) fadeOut(imgPlane);
+        });
+      });
 
       // フェードアウト関数
       function fadeOut(el) {
