@@ -17,7 +17,6 @@
       <a-assets>
         <img id="startImage" src="sample.png" />
         <a-asset-item id="base" src="bease2.glb"></a-asset-item>
-        <a-asset-item id="zou" src="zou.glb"></a-asset-item>
       </a-assets>
 
       <!-- 🌌 空 -->
@@ -32,15 +31,6 @@
         animation-mixer
       ></a-entity>
 
-      <!-- 🐘 ゾウ -->
-      <a-entity
-        gltf-model="#zou"
-        position="5.99 -0.2 -6.3"
-        rotation="0 -55 0"
-        scale="0.1 0.1 0.1"
-        animation-mixer
-      ></a-entity>
-
       <!-- 💡 ライト -->
       <a-entity
         light="type: directional; intensity: 1.5"
@@ -48,46 +38,66 @@
       ></a-entity>
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
-      <!-- 🎥 カメラ -->
+      <!-- 🎥 カメラリグ（カメラ + コントローラー） -->
       <a-entity id="cameraRig" position="5 -1.3 -7.9" rotation="0 180 0">
         <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
+
+        <!-- 🟡 VRコントローラー（右手・左手） -->
+        <a-entity
+          id="ctlR"
+          laser-controls="hand: right"
+          raycaster="objects: .clickable"
+        ></a-entity>
+        <a-entity
+          id="ctlL"
+          laser-controls="hand: left"
+          raycaster="objects: .clickable"
+        ></a-entity>
       </a-entity>
 
-      <!-- 🖼️ スタート画像（7秒後に消える・反転修正済み） -->
+      <!-- 🖼️ VR空間上のスタート画像（クリックで消える） -->
       <a-entity id="startImageEntity" position="5 0 -6.5">
         <a-image
           id="startImagePlane"
           src="#startImage"
           width="3"
           height="2"
-          position="0 1.0 0"
-          rotation="0 180 0"
+          position="0 1.5 0"
           opacity="1"
+          class="clickable"
         ></a-image>
       </a-entity>
     </a-scene>
 
     <script>
-      const imgPlane = document.getElementById("startImagePlane");
+      const imgPlane = document.getElementById('startImagePlane');
 
-      // 🌫️ フェードアウト関数
+      // 🖱️ マウスクリックでもVRコントローラーでもフェードアウト
+      imgPlane.addEventListener('click', () => fadeOut(imgPlane));
+
+      // VRコントローラーのトリガー検出（右手・左手両方対応）
+      const controllers = document.querySelectorAll('#ctlR, #ctlL');
+      controllers.forEach((ctl) => {
+        ctl.addEventListener('triggerdown', (e) => {
+          const intersected = ctl.components.raycaster.intersectedEls;
+          if (intersected.includes(imgPlane)) fadeOut(imgPlane);
+        });
+      });
+
+      // フェードアウト関数
       function fadeOut(el) {
+        if (el.getAttribute('visible') === 'false') return;
         let opacity = 1.0;
         const fade = setInterval(() => {
           opacity -= 0.05;
           if (opacity <= 0) {
-            el.setAttribute("visible", "false");
+            el.setAttribute('visible', 'false');
             clearInterval(fade);
           } else {
-            el.setAttribute("opacity", opacity);
+            el.setAttribute('opacity', opacity);
           }
         }, 50);
       }
-
-      // ⏳ 7秒後にフェードアウト開始
-      setTimeout(() => {
-        fadeOut(imgPlane);
-      }, 7000);
     </script>
   </body>
 </html>
