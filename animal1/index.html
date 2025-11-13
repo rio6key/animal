@@ -15,72 +15,83 @@
     <a-scene cursor="rayOrigin: mouse">
       <!-- 🎒 アセット -->
       <a-assets>
-        <img id="startImage" src="sample.png" />
         <a-asset-item id="base" src="bease2.glb"></a-asset-item>
+        <audio id="zouSound" src="zou.mp3"></audio>
       </a-assets>
 
       <!-- 🌌 空 -->
       <a-sky color="#b3e5ff"></a-sky>
 
-      <!-- 🏞️ ベース -->
+      <!-- 🏞️ ベース（ゾウ含むGLB） -->
       <a-entity
+        id="world"
         gltf-model="#base"
         position="0 0 0"
         rotation="0 90 0"
         scale="10 10 10"
-        animation-mixer
+        animation-mixer="clip: idle"
       ></a-entity>
-      <a-entity gltf-model="#zou" position="5.99 -0.2 -6.3"
-                rotation="0 -55 0" scale="0.1 0.1 0.1" animation-mixer></a-entity>
+
+      <!-- 🟢 ゾウの前に透明な当たり判定 -->
+      <a-entity
+        id="elephantHitBox"
+        geometry="primitive: box; width: 2; height: 1.5; depth: 2"
+        material="opacity: 0; transparent: true"
+        position="5.9 1 -6.3"
+        class="clickable"
+      ></a-entity>
+
+      <!-- 🔊 ゾウの鳴き声 -->
+      <a-entity
+        id="elephantSound"
+        sound="src: #zouSound; autoplay: false; volume: 1"
+      ></a-entity>
 
       <!-- 💡 ライト -->
       <a-entity light="type: directional; intensity: 1.5" position="10 20 10"></a-entity>
       <a-entity light="type: ambient; intensity: 0.5"></a-entity>
 
-      <!-- 🎥 カメラリグ（カメラ + コントローラー） -->
+      <!-- 🎥 カメラ＋コントローラー -->
       <a-entity id="cameraRig" position="5 -1.1 -7.9" rotation="0 180 0">
         <a-camera look-controls wasd-controls="acceleration:10"></a-camera>
 
-        <!-- 🟡 VRコントローラー（右手・左手） -->
-        <a-entity id="ctlR" laser-controls="hand: right"></a-entity>
-        <a-entity id="ctlL" laser-controls="hand: left"></a-entity>
-      </a-entity>
-
-      <!-- 🖼️ VR空間上のスタート画像（7秒後に消える） -->
-      <a-entity id="startImageEntity" position="5 0 -6.5">
-        <a-image
-          id="startImagePlane"
-          src="#startImage"
-          width="3"
-          height="2"
-          position="0 0 0"
-          rotation="0 180 0"
-          opacity="1"
-        ></a-image>
+        <!-- VRコントローラー -->
+        <a-entity id="ctlR" laser-controls="hand: right" raycaster="objects: .clickable"></a-entity>
+        <a-entity id="ctlL" laser-controls="hand: left" raycaster="objects: .clickable"></a-entity>
       </a-entity>
     </a-scene>
 
     <script>
-      const imgPlane = document.getElementById("startImagePlane");
+      const elephantHitBox = document.getElementById("elephantHitBox");
+      const elephantSound = document.getElementById("elephantSound");
+      const world = document.getElementById("world");
 
-      // 🌫️ フェードアウト関数
-      function fadeOut(el) {
-        let opacity = 1.0;
-        const fade = setInterval(() => {
-          opacity -= 0.05;
-          if (opacity <= 0) {
-            el.setAttribute("visible", "false");
-            clearInterval(fade);
-          } else {
-            el.setAttribute("opacity", opacity);
-          }
-        }, 50);
+      // 🐘 当たり判定クリックまたはレーザーで反応
+      elephantHitBox.addEventListener("click", playElephantReaction);
+
+      // VRコントローラーのトリガー対応
+      const controllers = document.querySelectorAll("#ctlR, #ctlL");
+      controllers.forEach((ctl) => {
+        ctl.addEventListener("triggerdown", () => {
+          const intersected = ctl.components.raycaster.intersectedEls;
+          if (intersected.includes(elephantHitBox)) playElephantReaction();
+        });
+      });
+
+      function playElephantReaction() {
+        // 🔊 鳴き声再生
+        elephantSound.components.sound.playSound();
+
+        // 🐘 ゾウが少し頭を下げるアニメーション（GLBごと）
+        world.setAttribute("animation", {
+          property: "rotation",
+          to: "5 90 0",
+          dur: 400,
+          easing: "easeInOutSine",
+          dir: "alternate",
+          loop: 2,
+        });
       }
-
-      // ⏳ 7秒後にフェードアウト開始
-      setTimeout(() => {
-        fadeOut(imgPlane);
-      }, 7000);
     </script>
   </body>
 </html>
